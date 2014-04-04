@@ -4,6 +4,7 @@ package com.example.finalproject;
 
 import java.util.ArrayList;
 
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,10 +16,10 @@ public class DatabaseManager {
      public static final String DB_NAME = "carpool";
      public static final String TABLE_MSG = "messages", TABLE_USERS = "users", TABLE_SCHEDULE = "schedule";
      public static final int DB_VERSION = 1;
-     private static final String CREATE_TABLE_USERS = "CREATE TABLE " + TABLE_USERS + " (email TEXT, password TEXT, fname TEXT, lname TEXT, state TEXT, county TEXT, twon TEXT, zip TEXT, phone TEXT, gender TEXT);";
+     private static final String CREATE_TABLE_USERS = "CREATE TABLE " + TABLE_USERS + " (id INTEGER PRIMARY KEY, email TEXT, password TEXT, fname TEXT, lname TEXT, state TEXT, county TEXT, twon TEXT, zip TEXT, phone TEXT, gender TEXT);";
      private static final String CREATE_TABLE_SCHEDULE = "CREATE TABLE " + TABLE_SCHEDULE + " (email TEXT, day TEXT, arrive_time TEXT, depart_time TEXT, offering TEXT, staus TEXT );";
      private static final String CREATE_TABLE_MSG = "CREATE TABLE " + TABLE_MSG + " (from_email TEXT, to_email TEXT, date TEXT, time TEXT, message TEXT);";
-    		 
+         		 
      private SQLHelper helper;
      private SQLiteDatabase db;
      private Context context;
@@ -27,6 +28,7 @@ public class DatabaseManager {
          this.context = c;
          helper=new SQLHelper(c);
          this.db = helper.getWritableDatabase();
+    	 //super(c, DB_NAME, null, 1);
     }
 
     public DatabaseManager openReadable() throws android.database.SQLException {
@@ -175,6 +177,64 @@ public ArrayList<String> getToEmailMessages(String to_email) {
 /*
  * Getting All profile, messages and days methods go here
  */
+
+// retreive all users table records
+public Cursor retrieveUsersRows(){
+    ArrayList<String> allRows=new ArrayList<String>();
+    String[] columns;    
+    columns = new String[]{"id", "email", "fname", "lname", "state", "county", "twon", "zip", "phone", "gender"};
+    Cursor cursor = db.query("users", columns, null, null, null, null, null);
+    //cursor.moveToFirst();
+        
+   /* while (cursor.isAfterLast() == false) {
+        allRows.add(Integer.toString(cursor.getInt(0)) + ", "+cursor.getString(1)+", "+cursor.getString(2)+", "+
+        			cursor.getString(3)+", "+cursor.getString(4)+", "+cursor.getString(5)+", "+cursor.getString(6)
+        			+", "+cursor.getString(7)+", "+cursor.getString(8)+", "+cursor.getString(9));
+        cursor.moveToNext();
+    }  
+    if (cursor != null && !cursor.isClosed()) {
+        cursor.close();
+    }*/
+    return cursor;
+}
+
+// Retreive all schedule table records
+public ArrayList<String> retrieveScheduleRows(String tableName){
+    ArrayList<String> allRows=new ArrayList<String>();
+    String[] columns = new String[]{"email", "day", "arrive_time", "depart_time", "offering", "staus"};  
+    Cursor cursor = db.query("schedule", columns, null, null, null, null, null);
+    cursor.moveToFirst();
+        
+    while (cursor.isAfterLast() == false) {
+        allRows.add(cursor.getString(0)+", "+cursor.getString(1)+", "+cursor.getString(2)+", "+
+        			cursor.getString(3)+", "+cursor.getString(4)+", "+cursor.getString(5)+", "+
+        			cursor.getString(6));        			
+        cursor.moveToNext();
+    }  
+    if (cursor != null && !cursor.isClosed()) {
+        cursor.close();
+    }
+    return allRows;
+}
+
+//retreive all messages table recorde
+public ArrayList<String> retrieveMessagesRows(String tableName){
+    ArrayList<String> allRows=new ArrayList<String>();
+    String[] columns = new String[]{"from_email", "to_email", "date", "time", "message"};        
+    Cursor cursor = db.query("messages", columns, null, null, null, null, null);
+    cursor.moveToFirst();
+        
+    while (cursor.isAfterLast() == false) {
+        allRows.add(cursor.getString(0)+", "+cursor.getString(1)+", "+cursor.getString(2)+", "+
+        			cursor.getString(3)+", "+cursor.getString(4));        			
+        cursor.moveToNext();
+    }  
+    if (cursor != null && !cursor.isClosed()) {
+        cursor.close();
+    }
+    return allRows;
+}
+
      public class SQLHelper extends SQLiteOpenHelper {
         public SQLHelper(Context c){
             super(c, DB_NAME, null, DB_VERSION);
